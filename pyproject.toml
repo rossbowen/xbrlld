@@ -1,0 +1,31 @@
+[project]
+name = "xbrlld"
+version = "0.1.0"
+description = "A command line tool to convert XBRL taxonomies and instance documents into RDF."
+readme = "README.md"
+authors = [
+    { name = "rossbowen" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "arelle-release>=2.36.29",
+    "click>=8.1.8",
+    "oxrdflib>=0.4.0",
+    "pyoxigraph>=0.4.9",
+    "rdflib>=7.1.3",
+]
+
+[project.scripts]
+xbrlld = "xbrlld.cli:cli"
+
+[project.urls]
+Homepage = "https://github.com/rossbowen/xbrlld"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29.5",
+]
