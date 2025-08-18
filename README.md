@@ -1,74 +1,142 @@
-# xbrlld - XBRL to RDF
+# xbrlld – XBRL to RDF
 
-A Python library for converting XBRL taxonomies and instance documents to RDF (Resource Description Framework).
+**xbrlld** is a Python library and command-line tool for converting **XBRL taxonomies** and **instance documents** into **RDF** (Resource Description Framework).
 
-## Installation
+It is designed to make XBRL data interoperable with Linked Data technologies.
+
+---
+
+## Installation 📦
 
 ```bash
 pip install xbrlld
-```
+````
 
-## Usage
+---
+
+## Usage 🚀
+
+### Python API
 
 ```python
-from xbrlld.converter import XBRLtoRDFConverter
+from xbrlld.taxonomy import convert_taxonomy, write_taxonomy_to_rdf
+from xbrlld.instance import convert_instance, write_instance_to_rdf
 
-converter = XBRLtoRDFConverter()
+# Convert a taxonomy and return an RDF Dataset
+dataset = convert_taxonomy("https://xbrl.frc.org.uk/FRS-102/2025-01-01/FRS-102-2025-01-01.xsd")
 
-# Convert taxonomy
-converter.convert_taxonomy(
-    "https://example.com/taxonomy.xsd",
-    "taxonomy.trig"
+# Write taxonomy RDF to file (default: Turtle format)
+write_taxonomy_to_rdf(
+    "https://xbrl.frc.org.uk/FRS-102/2025-01-01/FRS-102-2025-01-01.xsd",
+    "FRS-102-2025-01-01.ttl"
 )
 
-# Convert instance document
-converter.convert_instance(
-    "https://example.com/report.html",
-    "facts.trig",
-    with_taxonomy=True
+# Convert an instance document and return an RDF Dataset
+dataset = convert_instance("https://www.sec.gov/Archives/edgar/data/1326801/000162828025036791/meta-20250630.htm")
+
+# Write instance RDF to file (default: Turtle format)
+write_instance_to_rdf(
+    "https://www.sec.gov/Archives/edgar/data/1326801/000162828025036791/meta-20250630.htm",
+    "meta-20250630.ttl"
 )
 ```
 
-Or from the command line:
+### Command line
 
 ```bash
-xbrlld convert taxonomy https://example.com/taxonomy.xsd -o taxonomy.trig
-xbrlld convert instance https://example.com/report.html -o facts.trig --with-taxonomy
+# Convert a taxonomy
+xbrlld convert taxonomy https://example.com/taxonomy.xsd -o taxonomy.ttl
+
+# Convert an instance document
+xbrlld convert instance https://example.com/report.html -o facts.ttl
 ```
 
-## Output format
+👉 If conversion fails, error messages are printed and the process exits with code `1`.
 
-The converter produces RDF in TriG format, which supports named graphs. The output includes:
+---
 
-- SKOS concepts and relationships for taxonomy elements
-- RDF Data Cube observations for facts
-- Dimensional relationships preserved as RDF properties
-- Context information (entity, period, units) as RDF properties
+## Output 📄
 
-Once converted, a typical fact looks like:
+The converter produces RDF in **Turtle (TTL)** format by default, with other serialisations (such as TriG) available through the API.
+
+In the generated RDF you will find:
+
+- **From taxonomies**:
+  - Concepts, dimensions, and relationships between them expressed as RDF classes and properties
+  - Linkbases (e.g. presentation, calculation, definition) translated into RDF
+  - Labels (across all available languages) and references
+
+- **From instances**:  
+  - Each reported fact represented as an RDF resource
+  - Links from facts to their corresponding taxonomy concepts
+  - Context information (entity, reporting period, units) captured as RDF properties
+  - Values stored in a consistent, machine-readable format
+
+
+### Example from an instance ([Apple Inc.](https://www.sec.gov/Archives/edgar/data/320193/000032019325000073/aapl-20250628.htm))
 
 ```ttl
-_:Ne675618720094136a2caa1bdad2f6c86 a qb:Observation,
-        xbrll:Fact ;
-    qb:measureType <http://xbrl.frc.org.uk/fr/2023-01-01/core#Equity> ;
-    <http://xbrl.frc.org.uk/fr/2023-01-01/core#Equity> 40288.0 ;
-    xbrll:concept <http://xbrl.frc.org.uk/fr/2023-01-01/core#Equity> ;
-    xbrll:decimals 0 ;
-    xbrll:hasEntity <http://data.companieshouse.gov.uk/doc/company/03886530> ;
-    xbrll:period "2024-04-01"^^xsd:date ;
-    xbrll:unitRef <http://www.xbrl.org/2003/iso4217#GBP> ;
-    xbrll:value 40288.0 .
+@prefix iso4217: <http://www.xbrl.org/2003/iso4217#> .
+@prefix xbrll: <https://w3id.org/vocab/xbrll#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+[] a xbrll:Fact ;
+    xbrll:concept <http://fasb.org/us-gaap/2024#NetIncomeLoss> ;
+    xbrll:decimals -6 ;
+    xbrll:hasEntity <http://www.sec.gov/CIK0000320193> ;
+    xbrll:period [
+        xbrll:endPeriod "2024-06-30"^^xsd:date ;
+        xbrll:startPeriod "2024-03-31"^^xsd:date
+    ] ;
+    xbrll:unitRef iso4217:USD ;
+    xbrll:value 21448000000.0 .
 ```
 
-## License
+### Example from a taxonomy ([US GAAP 2024](https://xbrl.fasb.org/us-gaap/2024/elts/us-gaap-all-2024.xsd))
 
-This project is licensed under the [MIT License](LICENSE).
+```ttl
+@prefix link: <http://www.xbrl.org/2003/linkbase#> .
+@prefix ns1: <http://www.xbrl.org/2003/role/> .
+@prefix ns2: <http://www.xbrl.org/2003/arcrole/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xbrli: <http://www.xbrl.org/2003/instance#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-## References
+<http://fasb.org/us-gaap/2024#NetIncomeLoss> a xbrli:monetaryItemType,
+        ns1:link ;
+    rdfs:label "Net Income (Loss) Attributable to Parent"@en-GB,
+        "Net Income (Loss) Attributable to Parent"@en-US ;
+    rdfs:isDefinedBy <http://fasb.org/us-gaap/2024> ;
+    xsd:abstract false ;
+    xsd:id "us-gaap_NetIncomeLoss" ;
+    xsd:nillable true ;
+    xsd:substitutionGroup xbrli:item ;
+    owl:sameAs <http://fasb.org/us-gaap#NetIncomeLoss> ;
+    ns2:concept-label ... ;
+    ns2:concept-reference ... ;
+    xbrli:balance "credit" ;
+    xbrli:periodType "duration" ;
+    ns1:documentation "The portion of profit or loss for the period, net of income taxes, which is attributable to the parent."@en-GB,
+        "The portion of profit or loss for the period, net of income taxes, which is attributable to the parent."@en-US ;
+    ns1:label "Net Income (Loss) Attributable to Parent"@en-GB,
+        "Net Income (Loss) Attributable to Parent"@en-US ;
+    ns1:totalLabel "Net Income (Loss) Attributable to Parent, Total"@en-GB,
+        "Net Income (Loss) Attributable to Parent, Total"@en-US .
+```
 
-- [Adopting Semantic Technologies for Efective Corporate Transparency](https://research-information.bris.ac.uk/en/publications/adopting-semantic-technologies-for-efective-corporate-transparenc)
-    - The `xbrll` vocabulary: [`https://w3id.org/vocab/xbrll#`](https://w3id.org/vocab/xbrll#)
+---
 
-- [Making XBRL and Linked Data interoperable](https://www.w3.org/2011/gld/wiki/images/c/c3/Kaempgen_QB-XBRL_2012-05-17.pdf)
+## References 📚
 
-- [Harvesting RDF Statements from XLinks](https://www.w3.org/TR/2000/NOTE-xlink2rdf-20000929/)
+* [Adopting Semantic Technologies for Effective Corporate Transparency](https://research-information.bris.ac.uk/en/publications/adopting-semantic-technologies-for-efective-corporate-transparenc)
+* The **xbrll vocabulary**: [`https://w3id.org/vocab/xbrll#`](https://w3id.org/vocab/xbrll#)
+* [Making XBRL and Linked Data interoperable (Kaempgen, 2012)](https://www.w3.org/2011/gld/wiki/images/c/c3/Kaempgen_QB-XBRL_2012-05-17.pdf)
+* [Harvesting RDF Statements from XLinks](https://www.w3.org/TR/2000/NOTE-xlink2rdf-20000929/)
+
+---
+
+## Licence ⚖️
+
+This project is released under the [MIT Licence](LICENCE).
+

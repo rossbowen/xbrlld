@@ -1,6 +1,6 @@
 [project]
 name = "xbrlld"
-version = "0.1.0"
+version = "0.2.0"
 description = "A command line tool to convert XBRL taxonomies and instance documents into RDF."
 readme = "README.md"
 authors = [
@@ -10,8 +10,7 @@ requires-python = ">=3.12"
 dependencies = [
     "arelle-release>=2.36.29",
     "click>=8.1.8",
-    "oxrdflib>=0.4.0",
-    "pyoxigraph>=0.4.9",
+    "pytest>=8.4.1",
     "rdflib>=7.1.3",
 ]
 
