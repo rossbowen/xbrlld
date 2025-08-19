@@ -4,7 +4,7 @@ from arelle import Cntlr, XbrlConst
 from arelle.ModelDocument import Type
 from arelle.ModelDtsObject import ModelConcept
 from arelle.ModelValue import QName
-from rdflib import OWL, RDF, RDFS, XSD, BNode, Dataset, Literal, URIRef
+from rdflib import OWL, RDF, RDFS, XSD, BNode, Graph, Literal, URIRef
 
 from xbrlld import NAMESPACES
 
@@ -46,7 +46,7 @@ def convert_taxonomy(file: str) -> Graph:
     ]:
         raise ValueError(f"Document at {file} is not a valid XBRL taxonomy document")
 
-    dataset = Dataset()
+    dataset = Graph()
     for prefix, uri in NAMESPACES.items():
         dataset.namespace_manager.bind(prefix, uri)
 

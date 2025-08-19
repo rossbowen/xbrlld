@@ -11,10 +11,11 @@ from arelle.XbrlConst import (
     qnXbrliDurationItemType,
     qnXbrliMonetaryItemType,
 )
-from rdflib import BNode, Dataset, Literal, URIRef
+from rdflib import BNode, Graph, Literal, URIRef
 from rdflib.namespace import RDF, XSD
 
 from xbrlld import NAMESPACES
+from xbrlld.taxonomy import convert_taxonomy
 
 qnXbrliDecimalItemType = qname(
     "{http://www.xbrl.org/2003/instance}xbrli:decimalItemType"
@@ -23,9 +24,13 @@ qnXbrliSharesItemType = qname("{http://www.xbrl.org/2003/instance}xbrli:sharesIt
 qnXbrliPureItemType = qname("{http://www.xbrl.org/2003/instance}xbrli:pureItemType")
 
 
-def convert_instance(file: str) -> Dataset:
+def convert_instance(file: str, with_taxonomy: bool = False) -> Graph:
     """
     Convert an XBRL instance document to RDF and return a Dataset.
+
+    :param file: Path to the XBRL instance document.
+    :param with_taxonomy: If True, include the taxonomy in the conversion.
+    :return: A Graph containing the RDF representation of the instance.
     """
     controller = Cntlr.Cntlr()
     model_xbrl = controller.modelManager.load(file)
@@ -38,7 +43,7 @@ def convert_instance(file: str) -> Dataset:
     ]:
         raise ValueError(f"Document at {file} is not a valid XBRL instance document")
 
-    dataset = Dataset()
+    dataset = Graph()
     for prefix, uri in NAMESPACES.items():
         dataset.namespace_manager.bind(prefix, uri)
 
@@ -207,6 +212,11 @@ def convert_instance(file: str) -> Dataset:
                                 URIRef(measure.expandedName),
                             )
                         )
+
+    if with_taxonomy:
+        for schema_ref in model_xbrl.modelDocument.referencesDocument.keys():
+            taxonomy = convert_taxonomy(schema_ref.uri)
+            dataset += taxonomy
 
     return dataset
 
