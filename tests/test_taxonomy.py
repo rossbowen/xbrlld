@@ -1,3 +1,4 @@
+import os
 from unittest.mock import patch
 
 import pytest
@@ -63,3 +64,12 @@ def test_convert_taxonomy_function():
             match="Document at fake-taxonomy.xsd is not a valid XBRL taxonomy document",
         ):
             convert_taxonomy("fake-taxonomy.xsd")
+
+
+def test_taxonomy_conversion_local_file():
+    taxonomy_dir = os.path.join(os.path.dirname(__file__), "data", "taxonomy")
+    for filename in os.listdir(taxonomy_dir):
+        data_path = os.path.join(taxonomy_dir, filename)
+        if os.path.isfile(data_path):
+            ds = convert_taxonomy(data_path)
+            assert ds is not None, f"Conversion failed for {filename}"

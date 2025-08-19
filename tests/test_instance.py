@@ -1,3 +1,4 @@
+import os
 from unittest.mock import patch
 
 import pytest
@@ -30,3 +31,12 @@ def test_convert_instance(instance_url):
         assert ds is not None
     except Exception as e:
         pytest.fail(f"convert_instance failed for {instance_url}: {e}")
+
+
+def test_instance_conversion_local_file():
+    instance_dir = os.path.join(os.path.dirname(__file__), "data", "instance")
+    for filename in os.listdir(instance_dir):
+        data_path = os.path.join(instance_dir, filename)
+        if os.path.isfile(data_path):
+            ds = convert_instance(data_path)
+            assert ds is not None, f"Conversion failed for {filename}"
