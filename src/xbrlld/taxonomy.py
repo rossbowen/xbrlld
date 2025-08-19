@@ -23,12 +23,20 @@ def normalise_uri(uri: URIRef) -> URIRef:
     return URIRef(normalised_uri)
 
 
-def convert_taxonomy(file: str) -> Dataset:
+def convert_taxonomy(file: str) -> Graph:
     """
     Convert an XBRL taxonomy document to RDF and return a Dataset.
     """
     controller = Cntlr.Cntlr()
     model_xbrl = controller.modelManager.load(file)
+
+    langs = {
+        r.xmlLang
+        for r in model_xbrl.modelObjects
+        if r.qname
+        and r.qname.localName in ("label", "reference")
+        and hasattr(r, "xmlLang")
+    }
 
     if not model_xbrl:
         raise ValueError(f"Failed to load XBRL document: {file}")
@@ -126,7 +134,7 @@ def convert_taxonomy(file: str) -> Dataset:
                     )
 
                 for label_role in model_xbrl.labelroles:
-                    for lang in model_xbrl.langs:
+                    for lang in langs:
                         label = concept.label(
                             label_role, fallbackToQname=False, lang=lang
                         )
