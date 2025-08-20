@@ -1,6 +1,6 @@
 [project]
 name = "xbrlld"
-version = "0.2.1"
+version = "0.2.2"
 description = "A command line tool to convert XBRL taxonomies and instance documents into RDF."
 readme = "README.md"
 authors = [
