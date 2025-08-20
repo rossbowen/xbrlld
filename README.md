@@ -36,8 +36,8 @@ dataset = convert_instance("https://www.sec.gov/Archives/edgar/data/1326801/0001
 
 # Write instance RDF to file (default: Turtle format)
 write_instance_to_rdf(
-    "https://www.sec.gov/Archives/edgar/data/1326801/000162828025036791/meta-20250630.htm",
-    "meta-20250630.ttl"
+    "https://www.sec.gov/Archives/edgar/data/320193/000032019325000073/aapl-20250628.htm",
+    "aapl-20250628.ttl",
 )
 ```
 
@@ -95,34 +95,41 @@ In the generated RDF you will find:
 ### Example from a taxonomy ([US GAAP 2024](https://xbrl.fasb.org/us-gaap/2024/elts/us-gaap-all-2024.xsd))
 
 ```ttl
-@prefix link: <http://www.xbrl.org/2003/linkbase#> .
-@prefix ns1: <http://www.xbrl.org/2003/role/> .
-@prefix ns2: <http://www.xbrl.org/2003/arcrole/> .
+@prefix ns1: <http://www.xbrl.org/2003/arcrole/> .
+@prefix ns2: <http://www.xbrl.org/2003/role/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xbrli: <http://www.xbrl.org/2003/instance#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<http://fasb.org/us-gaap/2024#NetIncomeLoss> a xbrli:monetaryItemType,
-        ns1:link ;
-    rdfs:label "Net Income (Loss) Attributable to Parent"@en-GB,
-        "Net Income (Loss) Attributable to Parent"@en-US ;
+<http://fasb.org/us-gaap/2024#BusinessAcquisitionsProFormaNetIncomeLoss> a xbrli:monetaryItemType,
+        ns2:link ;
+    rdfs:label "Business Acquisition, Pro Forma Net Income (Loss)",
+        "Business Acquisition, Pro Forma Net Income (Loss)"@en-US ;
     rdfs:isDefinedBy <http://fasb.org/us-gaap/2024> ;
     xsd:abstract false ;
-    xsd:id "us-gaap_NetIncomeLoss" ;
+    xsd:id "us-gaap_BusinessAcquisitionsProFormaNetIncomeLoss" ;
     xsd:nillable true ;
     xsd:substitutionGroup xbrli:item ;
-    owl:sameAs <http://fasb.org/us-gaap#NetIncomeLoss> ;
-    ns2:concept-label ... ;
-    ns2:concept-reference ... ;
+    owl:sameAs <http://fasb.org/us-gaap#BusinessAcquisitionsProFormaNetIncomeLoss> ;
+    ns1:concept-label _:N5de19bd23b4e4cf7b46d67f753b315e8,
+        _:N7f02a5e2fc0a46c4bab65ad80e738791 ;
+    ns1:concept-reference _:N20a938bdba54444dad13a4609668fe80,
+        _:N42a547447db348e08e5567bfc1484740 ;
     xbrli:balance "credit" ;
     xbrli:periodType "duration" ;
-    ns1:documentation "The portion of profit or loss for the period, net of income taxes, which is attributable to the parent."@en-GB,
-        "The portion of profit or loss for the period, net of income taxes, which is attributable to the parent."@en-US ;
-    ns1:label "Net Income (Loss) Attributable to Parent"@en-GB,
-        "Net Income (Loss) Attributable to Parent"@en-US ;
-    ns1:totalLabel "Net Income (Loss) Attributable to Parent, Total"@en-GB,
-        "Net Income (Loss) Attributable to Parent, Total"@en-US .
+    ns2:documentation "The pro forma net Income or Loss for the period as if the business combination or combinations had been completed at the beginning of a period.",
+        "The pro forma net Income or Loss for the period as if the business combination or combinations had been completed at the beginning of a period."@en-US ;
+    ns2:label "Business Acquisition, Pro Forma Net Income (Loss)",
+        "Business Acquisition, Pro Forma Net Income (Loss)"@en-US .
+
+_:N5de19bd23b4e4cf7b46d67f753b315e8 a link:label ;
+    rdf:value "The pro forma net Income or Loss for the period as if the business combination or combinations had been completed at the beginning of a period."@en-US ;
+    xlink:role ns2:documentation .
+
+_:N20a938bdba54444dad13a4609668fe80 a link:reference ;
+    rdf:value "805 10 Accounting Standards Codification 50 2 (h)(3) FASB" ;
+    xlink:role ns2:disclosureRef .
 ```
 
 ---
