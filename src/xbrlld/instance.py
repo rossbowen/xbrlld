@@ -130,7 +130,7 @@ def convert_instance(file: str, with_taxonomy: bool = False) -> Graph:
                     (
                         fact_bnode,
                         URIRef("https://w3id.org/vocab/xbrll#hasEntity"),
-                        URIRef(scheme + identifier),
+                        URIRef(scheme.strip() + identifier.strip()),
                     )
                 )
 
